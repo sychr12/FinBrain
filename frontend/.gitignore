@@ -40,3 +40,13 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+
+# 🔥 Adicione essas linhas para completar
+# Build output
+dist/
+.build/
+
+# Environment
+.env.production
+.env.development.local
+.env.test.local
