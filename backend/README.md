@@ -1,82 +1,147 @@
-Aqui está um README simples e direto para o backend:
+---
 
-## 📄 **README.md - Backend FinBrain**
+# ⚙️ FinBrain — Backend
 
-```markdown
-# FinBrain - Backend
-
-Backend da plataforma FinBrain.
-
-## 🚀 Como rodar
-
-```bash
-# Compilar e rodar
-mvn spring-boot:run
-```
-
-O servidor iniciará em `http://localhost:8080`
-
-## 📁 Estrutura
-
-```
-src/main/java/com/finbrain/backend/
-├── controller/     # Endpoints da API
-├── service/        # Regras de negócio
-├── repository/     # Acesso ao banco de dados
-├── model/          # Entidades
-├── dto/            # Objetos de transferência
-├── security/       # Configurações de segurança
-└── config/         # Configurações gerais
-```
-
-## 🗄️ Banco de Dados
-
-- PostgreSQL
-- URL: `jdbc:postgresql://localhost:5432/finbrain`
-- Usuário: `postgres`
-- Senha: `luiz`
-
-## 📡 Endpoints
-
-| Método | Endpoint | Função |
-|--------|----------|--------|
-| POST | `/api/auth/register` | Registrar usuário |
-| POST | `/api/auth/login` | Fazer login |
-| POST | `/api/auth/confirmar` | Confirmar email |
-| GET | `/api/auth/health` | Health check |
-
-## 🔐 Configurações
-
-### Email (Mailtrap)
-
-```properties
-mailtrap.token=a1566a54c746a95e44c2c8b71cbb2750
-mailtrap.from.email=hello@demomailtrap.co
-mailtrap.from.name=FinBrain Team
-```
-
-### JWT
-
-```properties
-jwt.secret=finbrain-super-secret-key-12345678901234567890
-jwt.expiration=86400000
-```
-
-## 🐛 Problemas comuns
-
-**Erro de conexão com banco**: Verifique se o PostgreSQL está rodando
-
-**Erro de email**: O código de verificação aparece no console do backend
-
-## 📦 Tecnologias
-
-- Spring Boot 3.3.5
-- Spring Security
-- JWT
-- PostgreSQL
-- Maven
+API responsável pela autenticação, processamento de dados e regras de negócio da plataforma **FinBrain**.
 
 ---
 
-Desenvolvido por FinBrain 💜
+## 🚀 Como Executar
+
+```bash
+# Rodar aplicação
+mvn spring-boot:run
 ```
+
+Servidor disponível em:
+👉 `http://localhost:8080`
+
+---
+
+## 🏗️ Arquitetura
+
+O projeto segue uma arquitetura em camadas:
+
+```
+src/main/java/com/finbrain/backend/
+├── controller/     # Endpoints REST
+├── service/        # Regras de negócio
+├── repository/     # Acesso a dados (JPA)
+├── model/          # Entidades
+├── dto/            # Transferência de dados
+├── security/       # Autenticação e autorização
+└── config/         # Configurações da aplicação
+```
+
+---
+
+## 🗄️ Banco de Dados
+
+* PostgreSQL
+* Configurado via `application.properties` ou variáveis de ambiente
+
+Exemplo:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/finbrain
+spring.datasource.username=SEU_USUARIO
+spring.datasource.password=SUA_SENHA
+```
+
+---
+
+## 🔐 Segurança
+
+* Autenticação baseada em **JWT (stateless)**
+* Proteção de rotas com Spring Security
+* Validação de dados no backend
+* Fluxo de verificação de email
+
+---
+
+## 📡 Endpoints Principais
+
+| Método | Endpoint              | Descrição            |
+| ------ | --------------------- | -------------------- |
+| POST   | `/api/auth/register`  | Registro de usuário  |
+| POST   | `/api/auth/login`     | Autenticação         |
+| POST   | `/api/auth/confirmar` | Verificação de email |
+| GET    | `/api/auth/health`    | Health check         |
+
+---
+
+## ⚙️ Configuração
+
+As configurações sensíveis devem ser feitas via **variáveis de ambiente**.
+
+### 🔑 Variáveis recomendadas
+
+```bash
+DB_URL=jdbc:postgresql://localhost:5432/finbrain
+DB_USER=postgres
+DB_PASSWORD=senha
+
+JWT_SECRET=chave-super-secreta
+JWT_EXPIRATION=86400000
+
+MAIL_HOST=smtp.mailtrap.io
+MAIL_USER=seu_usuario
+MAIL_PASS=sua_senha
+```
+
+---
+
+## 📦 Tecnologias
+
+* Spring Boot 3.3.5
+* Spring Security
+* JWT
+* PostgreSQL
+* JPA / Hibernate
+* Maven
+
+---
+
+## ⚠️ Troubleshooting
+
+**Erro de conexão com banco**
+
+* Verifique se o PostgreSQL está ativo
+* Confirme as credenciais
+
+**Erro no envio de email**
+
+* Verifique as variáveis SMTP
+* Confira logs no console
+
+---
+
+## 📌 Observações
+
+* Projeto em fase de MVP
+* Estrutura preparada para escalabilidade
+* API REST seguindo boas práticas
+
+---
+
+## ⭐ Destaque
+
+Este backend foi projetado com foco em:
+
+* Segurança (JWT + validação)
+* Separação de responsabilidades
+* Escalabilidade
+* Integração com frontend real
+
+---
+
+
+## 🚨 O que você melhorou aqui (e recrutador percebe)
+
+* ❌ Removeu segredos do código
+* ✅ Usou variáveis de ambiente
+* ✅ Mostrou arquitetura
+* ✅ Mostrou preocupação com segurança
+
+---
+
