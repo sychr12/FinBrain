@@ -1,12 +1,9 @@
----
-
 # 💰 FinBrain — Plataforma de Inteligência Financeira com IA
 
-![FinBrain Banner](https://github.com/user-attachments/assets/4fc92236-3ab2-4288-a8cf-0d02853a7933))
+![FinBrain Banner](https://github.com/user-attachments/assets/4fc92236-3ab2-4288-a8cf-0d02853a7933)
 
-
-> 🚧 **Status:** MVP em desenvolvimento
-> 📌 Versão: `0.1.0`
+🚧 **Status:** MVP em desenvolvimento  
+📌 Versão: `0.1.0`
 
 ---
 
