@@ -2,7 +2,8 @@
 
 # 💰 FinBrain — Plataforma de Inteligência Financeira com IA
 
-![FinBrain Banner]([https://via.placeholder.com/1200x400/6C47E8/ffffff?text=FinBrain](https://raw.githubusercontent.com/SEU-USUARIO/finbrain/main/frontend/public/logosg/sacodecompra.png))
+![FinBrain Banner](https://github.com/user-attachments/assets/4fc92236-3ab2-4288-a8cf-0d02853a7933))
+
 
 > 🚧 **Status:** MVP em desenvolvimento
 > 📌 Versão: `0.1.0`
@@ -167,11 +168,6 @@ O FinBrain não é apenas um controle financeiro.
 | Luiz Felipe   | Desenvolvedor Full Stack |
 | Kevin Marques | Desenvolvedor Full Stack |
 | Vitor Ramires | Desenvolvedor Full Stack |
-
-
-<img width="1024" height="1024" alt="sacodecompra" src="https://github.com/user-attachments/assets/164c916b-6e7f-4eca-9405-6e9d84005c91" />
-<img width="1024" height="1024" alt="sacodecompra" src="https://github.com/user-attachments/assets/4fc92236-3ab2-4288-a8cf-0d02853a7933" />
-|
 
 ---
 
