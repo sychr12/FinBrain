@@ -13,10 +13,10 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret:finbrain-super-secret-key-123456789012345}")
+    @Value("${jwt.secret}")
     private String secret;
     
-    @Value("${jwt.expiration:86400000}")
+    @Value("${jwt.expiration}")
     private Long expiration;
 
     private SecretKey getKey() {

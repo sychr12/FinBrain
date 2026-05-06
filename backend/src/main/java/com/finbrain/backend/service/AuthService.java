@@ -7,6 +7,8 @@ import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.UsuarioRepository;
 import com.finbrain.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -14,13 +16,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
-    private final UsuarioRepository repository;
-    private final PasswordEncoder encoder;
-    private final JwtService jwtService;
-    private final EmailService emailService;
+    @Autowired
+    private  UsuarioRepository repository;
+    
+    @Autowired
+    private PasswordEncoder encoder;
+    
+    @Autowired
+    private JwtService jwtService;
+    
+    @Autowired
+    private EmailService emailService;
 
     public void registrar(RegisterRequest request) {
         if (request == null) {
@@ -104,7 +112,6 @@ public class AuthService {
         user.setCodigoExpiracao(null);
         repository.save(user);
 
-        System.out.println("✅ Conta confirmada: " + email);
         return "Conta confirmada com sucesso!";
     }
 
@@ -139,7 +146,7 @@ public class AuthService {
         }
 
         String token = jwtService.gerarToken(user.getEmail());
-        System.out.println("✅ Login realizado: " + email);
+       
         return new AuthResponse(token);
     }
 
