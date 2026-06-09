@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor // 🔥 importante pra serialização
+@NoArgsConstructor 
 public class AuthResponse {
 
     private String token;

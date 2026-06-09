@@ -3,13 +3,18 @@ package com.finbrain.backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario {
+public class Usuario implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,8 +44,24 @@ public class Usuario {
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
 
+
     @PrePersist
     public void prePersist() {
         this.criadoEm = LocalDateTime.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+       return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+       return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 }

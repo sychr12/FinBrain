@@ -6,16 +6,18 @@ import com.finbrain.backend.dto.RegisterRequest;
 import com.finbrain.backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService service;
+    @Autowired
+    private AuthService service;
 
     @GetMapping("/health")
     public ResponseEntity<String> health() {
@@ -32,7 +34,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        System.out.println("🔐 Login recebido: " + request.getEmail());
         AuthResponse response = service.login(request);
         return ResponseEntity.ok(response);
     }
@@ -41,9 +42,11 @@ public class AuthController {
     public ResponseEntity<String> confirmar(
             @RequestParam("email") String email,
             @RequestParam("codigo") String codigo) {
-        System.out.println("✅ Confirmando conta: " + email);
-        System.out.println("🔑 Código: " + codigo);
-        String resultado = service.confirmar(email, codigo);
-        return ResponseEntity.ok(resultado);
+       try{
+            String resultado = service.confirmar(email, codigo);
+            return ResponseEntity.ok(resultado);
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -1,0 +1,21 @@
+{
+  "name": "finbrain",
+  "version": "1.0.0",
+  "description": "![FinBrain Banner](https://github.com/user-attachments/assets/4fc92236-3ab2-4288-a8cf-0d02853a7933)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sychr12/FinBrain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sychr12/FinBrain/issues"
+  },
+  "homepage": "https://github.com/sychr12/FinBrain#readme"
+}
