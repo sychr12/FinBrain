@@ -1,71 +1,49 @@
 package com.finbrain.backend.model;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import jakarta.annotation.Generated;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "cartoes")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cartao {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
+    
     private String nome;
-
-    @Column(name = "numero_mascarado",nullable = false)
+    
+    @Column(name = "numero_mascarado")
     private String numeroMascarado;
     
-    @Column(name = "limite_total", nullable = false)
+    @Column(name = "limite_total")
     private BigDecimal limiteTotal;
     
-     @Column(name = "limite_disponivel", nullable = false)
+    @Column(name = "limite_disponivel")
     private BigDecimal limiteDisponivel;
-
-    @Column(name = "dia_fechamento", nullable = false)
+    
+    @Column(name = "dia_fechamento")
     private Integer diaFechamento;
-
-    @Column(name = "dia_vencimento", nullable = false)
+    
+    @Column(name = "dia_vencimento")
     private Integer diaVencimento;
-
-    @Column(nullable = false)
-    private Boolean ativo;
-
+    
+    private Boolean ativo = true;
+    
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario usuario;
-
-    @Column(name = "data_criacao")
-    private LocalDateTime dataCriacao;
-
-    @Column(name = "data_atualizado")
-    private LocalDateTime dataAtualizado;
-
-     @PrePersist
-    public void prePersist() {
-        this.dataCriacao = LocalDateTime.now();
-        this.dataAtualizado = LocalDateTime.now();
-
-        if (limiteDisponivel == null) {
-            this.limiteDisponivel = limiteTotal;
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.dataAtualizado = LocalDateTime.now();
-    }
+    
+    @Temporal(TemporalType.DATE)
+    private Date dataCriacao;
+    
+    @Temporal(TemporalType.DATE)
+    private Date dataAtualizacao;
 }

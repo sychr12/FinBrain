@@ -39,44 +39,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        
-        // 🔥 IGNORA ROTAS PÚBLICAS
+
+        System.out.println("🔍 Filter path: " + path);
+
         if (path.startsWith("/api/auth/") || path.equals("/health") || request.getMethod().equals("OPTIONS")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         final String authHeader = request.getHeader("Authorization");
-        
+
+        System.out.println("🔑 Auth header: " + authHeader);
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        try{
+        try {
+            final String token = authHeader.substring(7);
+            final String email = jwtService.extrairEmail(token);
 
-        final String token = authHeader.substring(7);
-        final String email = jwtService.extrairEmail(token);
+            System.out.println("📧 Email extraído: " + email);
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
-            
-            if (jwtService.isTokenValido(token)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null,
-                    userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+
+                System.out.println("👤 UserDetails carregado: " + userDetails.getUsername());
+
+                if (jwtService.isTokenValido(token)) {
+                    System.out.println("✅ Token válido!");
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    System.out.println("❌ Token inválido!");
+                }
             }
+            filterChain.doFilter(request, response);
+
+        } catch (Exception ex) {
+            System.out.println("❌ Erro no filtro: " + ex.getMessage());
+            handlerExceptionResolver.resolveException(request, response, null, ex);
         }
-         filterChain.doFilter(request, response);
-
-    }catch(Exception ex){
-        handlerExceptionResolver.resolveException(request, response, null, ex);
-    }
-
-       
     }
 }

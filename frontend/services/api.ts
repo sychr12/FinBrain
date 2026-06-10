@@ -16,6 +16,36 @@ function setToken(token: string) {
   }
 }
 
+function removeToken() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("token");
+  }
+}
+
+// Helper autenticado
+async function authFetch(path: string, options: RequestInit = {}) {
+  const token = getToken();
+  if (!token) throw new Error("Usuário não autenticado");
+
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`,
+      ...options.headers,
+    },
+  });
+
+  const text = await response.text();
+  if (!response.ok) throw new Error(text || `Erro ${response.status}`);
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
 // ========================
 // 🔐 REGISTER
 // ========================
@@ -25,44 +55,15 @@ export async function register(data: {
   password: string;
   confirmPassword: string;
 }) {
-  try {
-    console.log("🚀 Enviando requisição para:", `${API_URL}/api/auth/register`);
-    console.log("📦 Dados:", { ...data, password: "***", confirmPassword: "***" });
-    
-    const response = await fetch(`${API_URL}/api/auth/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  const response = await fetch(`${API_URL}/api/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-    console.log("📡 Status:", response.status);
-    console.log("📡 Status Text:", response.statusText);
-
-    // Tenta ler a resposta como texto
-    const responseText = await response.text();
-    console.log("📥 Resposta bruta:", responseText);
-
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${responseText || "Sem mensagem"}`);
-    }
-
-    // Tenta fazer parse como JSON, se falhar retorna texto
-    let result;
-    try {
-      result = JSON.parse(responseText);
-    } catch {
-      result = responseText;
-    }
-    
-    console.log("✅ Sucesso:", result);
-    return result;
-    
-  } catch (error) {
-    console.error("❌ Exception no registro:", error);
-    throw error;
-  }
+  const text = await response.text();
+  if (!response.ok) throw new Error(text || `Erro ${response.status}`);
+  return text;
 }
 
 // ========================
@@ -72,111 +73,89 @@ export async function login(data: {
   email: string;
   password: string;
 }) {
-  try {
-    console.log("🚀 Enviando login para:", `${API_URL}/api/auth/login`);
-    console.log("📦 Email:", data.email);
-    
-    const response = await fetch(`${API_URL}/api/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+  const response = await fetch(`${API_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
 
-    console.log("📡 Status:", response.status);
+  const text = await response.text();
+  if (!response.ok) throw new Error(text || `Erro ${response.status}`);
 
-    const responseText = await response.text();
-    console.log("📥 Resposta:", responseText);
-
-    if (!response.ok) {
-      throw new Error(responseText || `Erro ${response.status}`);
-    }
-
-    const result = JSON.parse(responseText);
-    
-    if (result.token) {
-      setToken(result.token);
-      console.log("✅ Token salvo com sucesso!");
-      console.log("🔐 Token:", result.token.substring(0, 50) + "...");
-    }
-
-    return result;
-    
-  } catch (error) {
-    console.error("❌ Login error:", error);
-    throw error;
-  }
+  const result = JSON.parse(text);
+  if (result.token) setToken(result.token);
+  return result;
 }
 
 // ========================
-// 🔐 CONFIRMAR EMAIL (melhorado)
+// 🔐 CONFIRMAR EMAIL
 // ========================
 export async function confirmarEmail(email: string, codigo: string) {
-  try {
-    // 🔥 Garante que o código tenha a hashtag
-    const codigoFormatado = codigo.startsWith('#') ? codigo : `#${codigo}`;
-    
-    console.log("🚀 Confirmando email:", email);
-    console.log("🔑 Código original:", codigo);
-    console.log("🔑 Código formatado:", codigoFormatado);
-    
-    const response = await fetch(`${API_URL}/api/auth/confirmar?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigoFormatado)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  const codigoFormatado = codigo.startsWith("#") ? codigo : `#${codigo}`;
 
-    const responseText = await response.text();
-    console.log("📥 Resposta:", response.status, responseText);
+  const response = await fetch(
+    `${API_URL}/api/auth/confirmar?email=${encodeURIComponent(email)}&codigo=${encodeURIComponent(codigoFormatado)}`,
+    { method: "POST", headers: { "Content-Type": "application/json" } }
+  );
 
-    if (!response.ok) {
-      throw new Error(responseText || `Erro ${response.status}`);
-    }
-
-    return responseText;
-    
-  } catch (error) {
-    console.error("❌ Erro na confirmação:", error);
-    throw error;
-  }
+  const text = await response.text();
+  if (!response.ok) throw new Error(text || `Erro ${response.status}`);
+  return text;
 }
 
 // ========================
 // 👤 PERFIL
 // ========================
 export async function getPerfil() {
-  const token = getToken();
+  return authFetch("/api/user/perfil");
+}
 
-  if (!token) {
-    throw new Error("Usuário não autenticado");
-  }
+// ========================
+// 💳 CARTÕES
+// ========================
+export async function getCartoes() {
+  return authFetch("/api/cartoes");
+}
 
-  try {
-    console.log("🚀 Buscando perfil...");
-    
-    const response = await fetch(`${API_URL}/api/user/perfil`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+export async function criarCartao(data: {
+  nome: string;
+  numeroMascarado: string;
+  limiteTotal: number;
+  diaFechamento: number;
+  diaVencimento: number;
+}) {
+  return authFetch("/api/cartoes", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || `Erro ${response.status}`);
-    }
+// ========================
+// 💰 TRANSAÇÕES
+// ========================
+export async function getTransacoes() {
+  return authFetch("/api/transacoes");
+}
 
-    const result = await response.json();
-    console.log("✅ Perfil:", result);
-    return result;
-    
-  } catch (error) {
-    console.error("❌ Erro no perfil:", error);
-    throw error;
-  }
+export async function criarTransacao(data: {
+  descricao: string;
+  valor: number;
+  tipo: "RECEITA" | "DESPESA";
+  categoria?: string;
+  data: string;
+  cartaoId?: number;
+}) {
+  return authFetch("/api/transacoes", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ========================
+// 📊 DASHBOARD
+// ========================
+export async function getDashboardResumo() {
+  return authFetch("/api/dashboard/resumo");
 }
 
 // ========================
@@ -184,13 +163,9 @@ export async function getPerfil() {
 // ========================
 export async function testConnection() {
   try {
-    console.log("🏥 Testando conexão com backend...");
     const response = await fetch(`${API_URL}/api/auth/health`);
-    const text = await response.text();
-    console.log("✅ Health check:", response.status, text);
     return response.ok;
-  } catch (error) {
-    console.error("❌ Connection failed:", error);
+  } catch {
     return false;
   }
 }
@@ -200,11 +175,4 @@ export async function testConnection() {
 // ========================
 export function logout() {
   removeToken();
-  console.log("🔓 Usuário deslogado");
-}
-
-function removeToken() {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("token");
-  }
 }

@@ -1,22 +1,25 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 .yarn/install-state.gz
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build/
+dist/
+.build/
 
 # misc
 .DS_Store
 *.pem
+Thumbs.db
 
 # debug
 npm-debug.log*
@@ -26,6 +29,9 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.production
+.env.development.local
+.env.test.local
 
 # vercel
 .vercel
@@ -40,13 +46,15 @@ next-env.d.ts
 *.swp
 *.swo
 *~
+*.iml
 
-# 🔥 Adicione essas linhas para completar
-# Build output
-dist/
-.build/
+# backend (se tiver)
+backend/target/
+*.jar
+*.log
+logs/
 
-# Environment
-.env.production
-.env.development.local
-.env.test.local
+# banco de dados
+*.db
+*.sqlite
+*.sqlite3
