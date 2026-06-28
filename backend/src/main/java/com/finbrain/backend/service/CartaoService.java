@@ -6,34 +6,33 @@ import com.finbrain.backend.model.Cartao;
 import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.CartaoRepository;
 import com.finbrain.backend.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CartaoService {
 
-    @Autowired
-    private CartaoRepository cartaoRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    private final CartaoRepository cartaoRepository;
+    private final UsuarioRepository usuarioRepository;
 
     private Usuario getUsuarioLogado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
     }
 
     public CartaoResponse criar(CartaoRequest request) {
+        validarDias(request.getDiaFechamento(), request.getDiaVencimento());
+
         Usuario usuario = getUsuarioLogado();
 
         Cartao cartao = new Cartao();
-        cartao.setNome(request.getNome());
-        cartao.setNumeroMascarado(request.getNumeroMascarado());
+        cartao.setNome(request.getNome().trim());
+        cartao.setNumeroMascarado(request.getNumeroMascarado().trim());
         cartao.setLimiteTotal(request.getLimiteTotal());
         cartao.setLimiteDisponivel(request.getLimiteTotal());
         cartao.setDiaFechamento(request.getDiaFechamento());
@@ -50,19 +49,29 @@ public class CartaoService {
         return cartaoRepository.findByUsuario(usuario)
                 .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    private void validarDias(Integer diaFechamento, Integer diaVencimento) {
+        if (diaFechamento < 1 || diaFechamento > 31) {
+            throw new RuntimeException("Dia de fechamento deve estar entre 1 e 31");
+        }
+
+        if (diaVencimento < 1 || diaVencimento > 31) {
+            throw new RuntimeException("Dia de vencimento deve estar entre 1 e 31");
+        }
     }
 
     private CartaoResponse toResponse(Cartao c) {
         return new CartaoResponse(
-            c.getId(),
-            c.getNome(),
-            c.getNumeroMascarado(),
-            c.getLimiteTotal(),
-            c.getLimiteDisponivel(),
-            c.getDiaFechamento(),
-            c.getDiaVencimento(),
-            c.getAtivo()
+                c.getId(),
+                c.getNome(),
+                c.getNumeroMascarado(),
+                c.getLimiteTotal(),
+                c.getLimiteDisponivel(),
+                c.getDiaFechamento(),
+                c.getDiaVencimento(),
+                c.getAtivo()
         );
     }
 }

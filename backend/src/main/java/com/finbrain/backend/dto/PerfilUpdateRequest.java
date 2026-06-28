@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
-public class RegisterRequest {
+public class PerfilUpdateRequest {
 
     @NotBlank(message = "Nome e obrigatorio")
     private String nome;
@@ -15,10 +15,10 @@ public class RegisterRequest {
     @NotBlank(message = "Email e obrigatorio")
     private String email;
 
-    @NotBlank(message = "Senha e obrigatoria")
-    @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
-    private String password;
+    private String fotoPerfil;
 
-    @NotBlank(message = "Confirmacao de senha e obrigatoria")
-    private String confirmPassword;
+    private Boolean fotoValidada;
+
+    @Size(max = 500, message = "Reconhecimento facial deve ter no maximo 500 caracteres")
+    private String reconhecimentoFacial;
 }

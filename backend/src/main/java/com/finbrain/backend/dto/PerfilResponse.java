@@ -9,4 +9,7 @@ public class PerfilResponse {
     private Long id;
     private String nome;
     private String email;
+    private String fotoPerfil;
+    private Boolean fotoValidada;
+    private String reconhecimentoFacial;
 }

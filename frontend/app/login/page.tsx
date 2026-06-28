@@ -3,46 +3,94 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { login } from "@/services/api"; // 🔥 DESCOMENTADO
+import { login, getPerfil } from "@/services/api"; // 🔥 DESCOMENTADO
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", senha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [animate, setAnimate] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
     setAnimate(true);
-    // Verificar se já está logado
+
     const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/dashboard");
+    if (!token) {
+      setCheckingSession(false);
+      return;
     }
+
+    // Não basta checar se existe um token: precisamos validar se ele
+    // ainda é aceito pelo backend. Caso contrário, /login redireciona
+    // para /dashboard, o dashboard recebe 401 (JWT inválido/expirado),
+    // remove o token e volta para /login — criando um loop infinito.
+    getPerfil()
+      .then(() => {
+        router.push("/dashboard");
+      })
+      .catch(() => {
+        // Token inválido/expirado: já foi removido pelo parseResponse
+        // (AuthError). Apenas deixamos o formulário de login aparecer.
+        setCheckingSession(false);
+      });
   }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
 
-    if (!form.email || !form.password) {
+    if (!form.email || !form.senha) {
       setErro("Preencha todos os campos");
       return;
     }
 
     try {
       setLoading(true);
-      // 🔥 DESCOMENTADO - Chamada real da API
       const data = await login(form);
-      localStorage.setItem("token", data.token);
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
       router.push("/dashboard");
     } catch (err: any) {
-      setErro(err.message);
+      setErro(err?.message || "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
+  }
+
+  // Evita mostrar o formulário "piscando" enquanto ainda estamos
+  // validando uma sessão existente.
+  if (checkingSession) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 14,
+          background: "#FFFFFF",
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            border: "3px solid #EDE8FF",
+            borderTopColor: "#6C47E8",
+            borderRadius: "50%",
+            animation: "spin 0.75s linear infinite",
+          }}
+        />
+        <span style={{ fontSize: 13, color: "#999" }}>Verificando sessão...</span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   return (
@@ -610,8 +658,8 @@ export default function LoginPage() {
                     id="password"
                     type={showPass ? "text" : "password"}
                     placeholder="Digite sua senha"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    value={form.senha}
+                    onChange={(e) => setForm({ ...form, senha: e.target.value })}
                     style={{ paddingRight: "40px" }}
                   />
                   <button

@@ -8,45 +8,48 @@ import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.CartaoRepository;
 import com.finbrain.backend.repository.TransacaoRepository;
 import com.finbrain.backend.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class TransacaoService {
 
-    @Autowired
-    private TransacaoRepository transacaoRepository;
+    private static final Set<String> TIPOS_VALIDOS = Set.of("RECEITA", "DESPESA");
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private CartaoRepository cartaoRepository;
+    private final TransacaoRepository transacaoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final CartaoRepository cartaoRepository;
 
     private Usuario getUsuarioLogado() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
     }
 
     public TransacaoResponse criar(TransacaoRequest request) {
         Usuario usuario = getUsuarioLogado();
+        String tipo = request.getTipo().trim().toUpperCase();
+
+        if (!TIPOS_VALIDOS.contains(tipo)) {
+            throw new RuntimeException("Tipo deve ser RECEITA ou DESPESA");
+        }
 
         Transacao transacao = new Transacao();
-        transacao.setDescricao(request.getDescricao());
+        transacao.setDescricao(request.getDescricao().trim());
         transacao.setValor(request.getValor());
-        transacao.setTipo(request.getTipo().toUpperCase());
-        transacao.setCategoria(request.getCategoria());
+        transacao.setTipo(tipo);
+        transacao.setCategoria(request.getCategoria() != null ? request.getCategoria().trim() : null);
         transacao.setData(request.getData());
         transacao.setUsuario(usuario);
 
         if (request.getCartaoId() != null) {
-            Cartao cartao = cartaoRepository.findById(request.getCartaoId())
-                    .orElseThrow(() -> new RuntimeException("Cartão não encontrado"));
+            Cartao cartao = cartaoRepository.findByIdAndUsuario(request.getCartaoId(), usuario)
+                    .orElseThrow(() -> new RuntimeException("Cartao nao encontrado"));
             transacao.setCartao(cartao);
         }
 
@@ -59,18 +62,18 @@ public class TransacaoService {
         return transacaoRepository.findByUsuarioOrderByDataDesc(usuario)
                 .stream()
                 .map(this::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private TransacaoResponse toResponse(Transacao t) {
         return new TransacaoResponse(
-            t.getId(),
-            t.getDescricao(),
-            t.getValor(),
-            t.getTipo(),
-            t.getCategoria(),
-            t.getData(),
-            t.getCartao() != null ? t.getCartao().getId() : null
+                t.getId(),
+                t.getDescricao(),
+                t.getValor(),
+                t.getTipo(),
+                t.getCategoria(),
+                t.getData(),
+                t.getCartao() != null ? t.getCartao().getId() : null
         );
     }
 }

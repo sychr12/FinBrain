@@ -7,8 +7,8 @@ import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.UsuarioRepository;
 import com.finbrain.backend.security.JwtService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,52 +16,28 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private  UsuarioRepository repository;
-    
-    @Autowired
-    private PasswordEncoder encoder;
-    
-    @Autowired
-    private JwtService jwtService;
-    
-    @Autowired
-    private EmailService emailService;
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
+
+    private final UsuarioRepository repository;
+    private final PasswordEncoder encoder;
+    private final JwtService jwtService;
+    private final EmailService emailService;
 
     public void registrar(RegisterRequest request) {
-        if (request == null) {
-            throw new RuntimeException("Dados inválidos");
-        }
-
-        String nome = request.getNome() != null ? request.getNome().trim() : null;
-        String email = request.getEmail() != null ? request.getEmail().toLowerCase().trim() : null;
+        String nome = request.getNome().trim();
+        String email = request.getEmail().toLowerCase().trim();
         String password = request.getPassword();
         String confirmPassword = request.getConfirmPassword();
 
-        if (nome == null || nome.isBlank()) {
-            throw new RuntimeException("Nome é obrigatório");
-        }
-
-        if (email == null || email.isBlank()) {
-            throw new RuntimeException("Email é obrigatório");
-        }
-
-        if (password == null || password.isBlank() || password.length() < 6) {
-            throw new RuntimeException("Senha deve ter pelo menos 6 caracteres");
-        }
-
-        if (confirmPassword == null || confirmPassword.isBlank()) {
-            throw new RuntimeException("Confirmação de senha é obrigatória");
-        }
-
         if (repository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Email já cadastrado");
+            throw new RuntimeException("Email ja cadastrado");
         }
 
         if (!password.equals(confirmPassword)) {
-            throw new RuntimeException("Senhas não coincidem");
+            throw new RuntimeException("Senhas nao coincidem");
         }
 
         String codigo = gerarCodigo();
@@ -76,35 +52,34 @@ public class AuthService {
 
         repository.save(usuario);
         emailService.enviarCodigo(email, codigo);
-        
-        System.out.println("✅ Usuário registrado: " + email);
-        System.out.println("🔐 Código de verificação: " + codigo);
+
+        logger.info("Usuario registrado: {}", email);
     }
 
     public String confirmar(String email, String codigo) {
         if (email == null || email.isBlank()) {
-            throw new RuntimeException("Email é obrigatório");
+            throw new RuntimeException("Email e obrigatorio");
         }
 
         if (codigo == null || codigo.isBlank()) {
-            throw new RuntimeException("Código é obrigatório");
+            throw new RuntimeException("Codigo e obrigatorio");
         }
 
         Usuario user = repository.findByEmail(email.toLowerCase().trim())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
 
         if (Boolean.TRUE.equals(user.getEnabled())) {
-            return "Conta já confirmada";
+            return "Conta ja confirmada";
         }
 
         if (user.getCodigoVerificacao() == null ||
-            !user.getCodigoVerificacao().equalsIgnoreCase(codigo.trim())) {
-            throw new RuntimeException("Código inválido");
+                !user.getCodigoVerificacao().equalsIgnoreCase(codigo.trim())) {
+            throw new RuntimeException("Codigo invalido");
         }
 
         if (user.getCodigoExpiracao() == null ||
-            user.getCodigoExpiracao().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Código expirado");
+                user.getCodigoExpiracao().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Codigo expirado");
         }
 
         user.setEnabled(true);
@@ -112,41 +87,25 @@ public class AuthService {
         user.setCodigoExpiracao(null);
         repository.save(user);
 
-        return "Conta confirmada com sucesso!";
+        return "Conta confirmada com sucesso";
     }
 
     public AuthResponse login(AuthRequest request) {
-        if (request == null) {
-            throw new RuntimeException("Dados inválidos");
-        }
-
-        String email = request.getEmail() != null
-                ? request.getEmail().toLowerCase().trim()
-                : null;
-
-        String password = request.getPassword();
-
-        if (email == null || email.isBlank()) {
-            throw new RuntimeException("Email é obrigatório");
-        }
-
-        if (password == null || password.isBlank()) {
-            throw new RuntimeException("Senha é obrigatória");
-        }
+        String email = request.getEmail().toLowerCase().trim();
+        String password = request.getSenha();  // ← CORRIGIDO: getSenha() em vez de getPassword()
 
         Usuario user = repository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
 
         if (!Boolean.TRUE.equals(user.getEnabled())) {
-            throw new RuntimeException("Conta não verificada");
+            throw new RuntimeException("Conta nao verificada");
         }
 
         if (!encoder.matches(password, user.getSenha())) {
-            throw new RuntimeException("Senha inválida");
+            throw new RuntimeException("Senha invalida");
         }
 
         String token = jwtService.gerarToken(user.getEmail());
-       
         return new AuthResponse(token);
     }
 
