@@ -2,7 +2,6 @@ package com.finbrain.backend.service;
 
 import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

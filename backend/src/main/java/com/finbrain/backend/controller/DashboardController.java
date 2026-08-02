@@ -36,14 +36,14 @@ public class DashboardController {
         List<Transacao> transacoes = transacaoRepository.findByUsuarioOrderByDataDesc(usuario);
 
         BigDecimal totalReceitas = transacoes.stream()
-                .filter(t -> "RECEITA".equals(t.getTipo()))
-                .map(Transacao::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .filter(t -> "RECEITA".equals(t.getTipo()))
+            .map(t -> t.getValor() != null ? t.getValor() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
         BigDecimal totalDespesas = transacoes.stream()
-                .filter(t -> "DESPESA".equals(t.getTipo()))
-                .map(Transacao::getValor)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            .filter(t -> "DESPESA".equals(t.getTipo()))
+            .map(t -> t.getValor() != null ? t.getValor() : BigDecimal.ZERO)
+            .reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
 
         BigDecimal saldo = totalReceitas.subtract(totalDespesas);
 

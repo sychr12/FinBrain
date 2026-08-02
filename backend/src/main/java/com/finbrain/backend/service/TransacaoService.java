@@ -44,8 +44,9 @@ public class TransacaoService {
         transacao.setData(request.getData());
         transacao.setUsuario(usuario);
 
-        if (request.getCartaoId() != null) {
-            Cartao cartao = cartaoRepository.findById(request.getCartaoId())
+        Long cartaoId = request.getCartaoId();
+        if (cartaoId != null) {
+            Cartao cartao = cartaoRepository.findById(cartaoId)
                     .orElseThrow(() -> new RuntimeException("Cartão não encontrado"));
             transacao.setCartao(cartao);
         }

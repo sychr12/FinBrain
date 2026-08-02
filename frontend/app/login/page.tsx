@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { login } from "@/services/api"; // 🔥 DESCOMENTADO
+import { login, getPerfil } from "@/services/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,15 +12,20 @@ export default function LoginPage() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [animate, setAnimate] = useState(false);
-
   useEffect(() => {
-    setAnimate(true);
-    // Verificar se já está logado
     const token = localStorage.getItem("token");
-    if (token) {
-      router.push("/dashboard");
+    if (!token) return;
+
+    async function validateToken() {
+      try {
+        await getPerfil();
+        router.push("/dashboard");
+      } catch {
+        localStorage.removeItem("token");
+      }
     }
+
+    validateToken();
   }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -34,12 +39,13 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      // 🔥 DESCOMENTADO - Chamada real da API
       const data = await login(form);
-      localStorage.setItem("token", data.token);
+      if (!data.token) {
+        throw new Error("Não foi possível autenticar. Tente novamente.");
+      }
       router.push("/dashboard");
-    } catch (err: any) {
-      setErro(err.message);
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : "Não foi possível entrar. Tente novamente.");
     } finally {
       setLoading(false);
     }

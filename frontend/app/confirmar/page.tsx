@@ -1,17 +1,25 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 const API_URL = "http://localhost:8080/api/auth";
 
 export default function ConfirmarPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <ConfirmarContent />
+    </Suspense>
+  );
+}
+
+function ConfirmarContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailFromUrl = searchParams.get("email") || "";
 
   const [email, setEmail] = useState(emailFromUrl);
-  const [codigo, setCodigo] = useState("");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,15 +30,6 @@ export default function ConfirmarPage() {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // 🔥 Formata o código com a hashtag automaticamente
-  useEffect(() => {
-    const codigoSemHash = digits.join("");
-    if (codigoSemHash.length === 6) {
-      setCodigo(`#${codigoSemHash}`);
-    } else {
-      setCodigo("");
-    }
-  }, [digits]);
-
   // Contagem regressiva
   useEffect(() => {
     if (countdown > 0) {
@@ -89,8 +88,8 @@ export default function ConfirmarPage() {
       
       alert("Código reenviado! Verifique seu email.");
       
-    } catch (err: any) {
-      setErro(err.message);
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : "Não foi possível reenviar o código.");
     }
   }
 
@@ -128,15 +127,16 @@ export default function ConfirmarPage() {
         router.push("/login");
       }, 2500);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("❌ Erro:", err);
-      setErro(err.message);
+      setErro(err instanceof Error ? err.message : "Não foi possível confirmar a conta.");
     } finally {
       setLoading(false);
     }
   }
 
   const isComplete = digits.every(d => d !== "");
+  const codigo = isComplete ? `#${digits.join("")}` : "";
 
   return (
     <>
@@ -443,7 +443,7 @@ export default function ConfirmarPage() {
         <div className={`card${erro ? " shake" : ""}`}>
 
           <div className="logo-badge">
-            <img src="/logosg/sacodecompra.png" alt="FinBrain Logo" width="22" height="22" style={{borderRadius: '6px'}} />
+            <Image src="/logosg/sacodecompra.png" alt="FinBrain Logo" width={22} height={22} style={{ borderRadius: "6px" }} />
             <span className="logo-badge-name">FinBrain</span>
           </div>
 

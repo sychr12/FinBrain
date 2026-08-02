@@ -6,7 +6,6 @@ import com.finbrain.backend.dto.RegisterRequest;
 import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.UsuarioRepository;
 import com.finbrain.backend.security.JwtService;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;

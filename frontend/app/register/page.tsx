@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { register } from "@/services/api";
@@ -18,12 +18,6 @@ export default function RegisterPage() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-
-  useEffect(() => {
-    setAnimate(true);
-  }, []);
-
-  const [animate, setAnimate] = useState(false);
 
   // ── password strength ──
   const strength = useMemo(() => {
@@ -50,7 +44,7 @@ export default function RegisterPage() {
     return null;
   }
 
-  async function handleSubmit(e: any) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErro("");
     const erroValidacao = validar();
@@ -65,8 +59,8 @@ export default function RegisterPage() {
         confirmPassword: form.confirmPassword,
       });
       router.push(`/confirmar?email=${form.email}`);
-    } catch (err: any) {
-      setErro(err.message);
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : "Não foi possível criar a conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,7 @@ public class TransacaoRequest {
     private BigDecimal valor;
 
     @NotBlank(message = "Tipo é obrigatório")
+    @Pattern(regexp = "(?i)RECEITA|DESPESA", message = "Tipo deve ser RECEITA ou DESPESA")
     private String tipo; // RECEITA ou DESPESA
 
     private String categoria;

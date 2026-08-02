@@ -37,7 +37,12 @@ async function authFetch(path: string, options: RequestInit = {}) {
   });
 
   const text = await response.text();
-  if (!response.ok) throw new Error(text || `Erro ${response.status}`);
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      removeToken();
+    }
+    throw new Error(text || `Erro ${response.status}`);
+  }
 
   try {
     return JSON.parse(text);
