@@ -43,6 +43,12 @@ public class Usuario implements UserDetails{
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
+    
+    @Column
+    private String tokenResetSenha;
+
+    @Column
+    private LocalDateTime expiracaoTokenResetSenha;
 
 
     @PrePersist
