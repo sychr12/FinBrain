@@ -27,4 +27,10 @@ public class CartaoController {
     public ResponseEntity<List<CartaoResponse>> listar() {
         return ResponseEntity.ok(service.listar());
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> desativarCartao(@PathVariable("id") Long id){
+        service.desativarCartao(id);
+        return ResponseEntity.ok("Cartao desativado com sucesso!");
+    }
 }

@@ -59,8 +59,9 @@ public class AuthController {
 
     @PostMapping("/resetSenha")
     public ResponseEntity<?> redefinirSenha(
-            @RequestBody()RedefinicaoSenha redefinicaoSenha) {
-        service.redefinirSenha(redefinicaoSenha);
+            @RequestBody RedefinicaoSenha redefinicaoSenha,
+            @RequestParam("token") String token) {
+        service.redefinirSenha(redefinicaoSenha, token);
         return ResponseEntity.ok("Senha redefinida com sucesso!");
     }
 }

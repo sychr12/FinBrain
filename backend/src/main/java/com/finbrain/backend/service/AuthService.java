@@ -157,7 +157,7 @@ public class AuthService {
             throw new RuntimeException("Email é obrigatório");
         }
 
-        var usuario = repository.findByEmail(email)
+        var usuario = repository.findByEmail(email.toLowerCase().trim())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         String token = UUID.randomUUID().toString();
@@ -166,7 +166,8 @@ public class AuthService {
 
         repository.save(usuario);
 
-        String linkReset = "http://localhost:3000/reset-senha?token=" + token;
+        //provisorio.
+        String linkReset = "http://localhost:3000/resetSenha?token=" + token;
         String mensagemEmail = "<html><body>"
                 + "<p>Olá <strong>" + usuario.getNome() + "</strong>,</p>"
                 + "<p>Você solicitou a redefinição de sua senha.</p>"
@@ -179,8 +180,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void redefinirSenha(RedefinicaoSenha redefinicaoSenha) {
-        var usuario = repository.findBytokenResetSenha(redefinicaoSenha.token()).orElseThrow(() -> new RuntimeException("Token Invalido ou nao encontrado!"));
+    public void redefinirSenha(RedefinicaoSenha redefinicaoSenha, String token) {
+        var usuario = repository.findByTokenResetSenha(token.trim()).orElseThrow(() -> new RuntimeException("Token Invalido ou nao encontrado!"));
 
         if(usuario.getExpiracaoTokenResetSenha().isBefore(LocalDateTime.now())){
             throw new RuntimeException("Token expirado");
