@@ -65,4 +65,13 @@ public class CartaoService {
             c.getAtivo()
         );
     }
+
+    public void desativarCartao(Long id) {
+        var cartao =   cartaoRepository.findById(id).orElseThrow(() -> new RuntimeException("Cartao nao encontrado!"));
+        if(!cartao.getAtivo()){
+            throw new RuntimeException("Cartao ja esta inativo!");
+        }
+        cartao.setAtivo(false);
+        cartaoRepository.save(cartao);
+    }
 }

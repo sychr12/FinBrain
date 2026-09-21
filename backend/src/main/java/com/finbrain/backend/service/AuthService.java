@@ -2,11 +2,13 @@ package com.finbrain.backend.service;
 
 import com.finbrain.backend.dto.AuthRequest;
 import com.finbrain.backend.dto.AuthResponse;
+import com.finbrain.backend.dto.RedefinicaoSenha;
 import com.finbrain.backend.dto.RegisterRequest;
 import com.finbrain.backend.model.Usuario;
 import com.finbrain.backend.repository.UsuarioRepository;
 import com.finbrain.backend.security.JwtService;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -149,6 +151,49 @@ public class AuthService {
         return new AuthResponse(token);
     }
 
+    @Transactional
+    public void esqueceuSenha(String email){
+        if(email == null || email.isBlank()){
+            throw new RuntimeException("Email é obrigatório");
+        }
+
+        var usuario = repository.findByEmail(email.toLowerCase().trim())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        String token = UUID.randomUUID().toString();
+        usuario.setTokenResetSenha(token);
+        usuario.setExpiracaoTokenResetSenha(LocalDateTime.now().plusMinutes(30));
+
+        repository.save(usuario);
+
+        //provisorio.
+        String linkReset = "http://localhost:3000/resetSenha?token=" + token;
+        String mensagemEmail = "<html><body>"
+                + "<p>Olá <strong>" + usuario.getNome() + "</strong>,</p>"
+                + "<p>Você solicitou a redefinição de sua senha.</p>"
+                + "<p>Clique no link abaixo para cadastrar uma nova senha:</p>"
+                + "<p><a href=\"" + linkReset + "\">Redefinir Senha</a></p>"
+                + "<p><em>Este link é válido por 30 minutos.</em></p>"
+                + "</body></html>";
+
+        emailService.enviarEmail(usuario.getEmail(), "Recuperação de Senha - FinBrain", mensagemEmail);
+    }
+
+    @Transactional
+    public void redefinirSenha(RedefinicaoSenha redefinicaoSenha, String token) {
+        var usuario = repository.findByTokenResetSenha(token.trim()).orElseThrow(() -> new RuntimeException("Token Invalido ou nao encontrado!"));
+
+        if(usuario.getExpiracaoTokenResetSenha().isBefore(LocalDateTime.now())){
+            throw new RuntimeException("Token expirado");
+        }
+
+        usuario.setSenha(encoder.encode(redefinicaoSenha.novaSenha()));
+
+        usuario.setTokenResetSenha(null);
+        usuario.setExpiracaoTokenResetSenha(null);
+
+        repository.save(usuario);
+    }
     private String gerarCodigo() {
         return "#" + UUID.randomUUID()
                 .toString()
