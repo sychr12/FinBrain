@@ -8,7 +8,7 @@ import { login, getPerfil } from "@/services/api";
 export default function LoginPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: "", senha: "" });
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
@@ -32,7 +32,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErro("");
 
-    if (!form.email || !form.password) {
+    if (!form.email || !form.senha) {
       setErro("Preencha todos os campos");
       return;
     }
@@ -49,6 +49,37 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  // Evita mostrar o formulário "piscando" enquanto ainda estamos
+  // validando uma sessão existente.
+  if (checkingSession) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          gap: 14,
+          background: "#FFFFFF",
+        }}
+      >
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            border: "3px solid #EDE8FF",
+            borderTopColor: "#6C47E8",
+            borderRadius: "50%",
+            animation: "spin 0.75s linear infinite",
+          }}
+        />
+        <span style={{ fontSize: 13, color: "#999" }}>Verificando sessão...</span>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
   }
 
   return (
@@ -616,8 +647,8 @@ export default function LoginPage() {
                     id="password"
                     type={showPass ? "text" : "password"}
                     placeholder="Digite sua senha"
-                    value={form.password}
-                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    value={form.senha}
+                    onChange={(e) => setForm({ ...form, senha: e.target.value })}
                     style={{ paddingRight: "40px" }}
                   />
                   <button

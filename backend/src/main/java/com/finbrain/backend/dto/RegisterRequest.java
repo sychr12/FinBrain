@@ -1,22 +1,24 @@
 package com.finbrain.backend.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class RegisterRequest {
 
-    @NotBlank(message = "Nome é obrigatório")
+    @NotBlank(message = "Nome e obrigatorio")
     private String nome;
 
-    @Email(message = "Email inválido")
-    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email invalido")
+    @NotBlank(message = "Email e obrigatorio")
     private String email;
 
-    @NotBlank(message = "Senha é obrigatória")
-    @Size(min = 6, message = "Senha deve ter no mínimo 6 caracteres")
+    @NotBlank(message = "Senha e obrigatoria")
+    @Size(min = 6, message = "Senha deve ter no minimo 6 caracteres")
     private String password;
 
-    @NotBlank(message = "Confirmação de senha é obrigatória")
+    @NotBlank(message = "Confirmacao de senha e obrigatoria")
     private String confirmPassword;
 }
