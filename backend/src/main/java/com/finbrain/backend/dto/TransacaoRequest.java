@@ -1,17 +1,21 @@
 package com.finbrain.backend.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 public class TransacaoRequest {
 
-    @NotBlank(message = "Descrição é obrigatória")
+    @NotBlank(message = "Descricao e obrigatoria")
     private String descricao;
 
-    @NotNull(message = "Valor é obrigatório")
+    @NotNull(message = "Valor e obrigatorio")
     @Positive(message = "Valor deve ser positivo")
     private BigDecimal valor;
 
@@ -21,7 +25,7 @@ public class TransacaoRequest {
 
     private String categoria;
 
-    @NotNull(message = "Data é obrigatória")
+    @NotNull(message = "Data e obrigatoria")
     private LocalDate data;
 
     private Long cartaoId;

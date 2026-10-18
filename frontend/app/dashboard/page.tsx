@@ -32,14 +32,6 @@ interface Perfil {
   email: string;
 }
 
-interface Resumo {
-  totalReceitas: number;
-  totalDespesas: number;
-  saldo: number;
-  totalTransacoes: number;
-  totalCartoes: number;
-}
-
 const GASTOS_DATA = [
   { categoria: "Alimentação", valor: 980.3, cor: "#4F2EC0", icone: Coffee },
   { categoria: "Transporte", valor: 430.3, cor: "#6B46FF", icone: Car },
@@ -69,6 +61,10 @@ export default function DashboardPage() {
         setPerfil(p);
         setResumo(r);
       } catch (error) {
+        // AuthError (token inválido/expirado) já limpou o localStorage
+        // dentro de parseResponse. Para qualquer outro erro também
+        // mandamos para /login, mas sem ficar em loop: o /login agora
+        // valida o token antes de redirecionar de volta para o dashboard.
         console.error("Erro ao carregar dados:", error);
         logout();
         router.push("/login");

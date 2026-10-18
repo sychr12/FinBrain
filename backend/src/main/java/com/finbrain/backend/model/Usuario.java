@@ -1,20 +1,29 @@
 package com.finbrain.backend.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Usuario implements UserDetails{
+public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,20 +39,26 @@ public class Usuario implements UserDetails{
     private String senha;
 
     @Column(nullable = false)
-    // 🔥 começa como FALSE (precisa confirmar email)
     private Boolean enabled = false;
 
     @Column(name = "codigo_verificacao")
-    // 🔥 código enviado por email (ex: #A1B2C)
     private String codigoVerificacao;
 
     @Column(name = "codigo_expiracao")
-    // 🔥 define validade do código (ex: 10 minutos)
     private LocalDateTime codigoExpiracao;
+
+    @Lob
+    @Column(name = "foto_perfil")
+    private String fotoPerfil;
+
+    @Column(name = "foto_validada")
+    private Boolean fotoValidada = false;
+
+    @Column(name = "reconhecimento_facial")
+    private String reconhecimentoFacial;
 
     @Column(name = "criado_em", updatable = false)
     private LocalDateTime criadoEm;
-
 
     @PrePersist
     public void prePersist() {
@@ -52,16 +67,21 @@ public class Usuario implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-       return List.of();
+        return List.of();
     }
 
     @Override
     public String getPassword() {
-       return this.senha;
+        return senha;
     }
 
     @Override
     public String getUsername() {
-        return this.email;
+        return email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(enabled);
     }
 }

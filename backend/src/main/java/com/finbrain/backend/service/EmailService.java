@@ -10,13 +10,13 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class EmailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    @Autowired
-    private SpringTemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     public void enviarCodigo(String para, String codigo) {
         try {
@@ -31,10 +31,10 @@ public class EmailService {
             
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            
+
             Context context = new Context();
             context.setVariable("codigo", codigo);
-            
+
             String htmlContent = templateEngine.process("email-verificacao", context);
 
             // Ensure htmlContent is non-null to satisfy helper API null-safety
@@ -44,14 +44,11 @@ public class EmailService {
             helper.setTo(new String[]{para});
             helper.setSubject("Codigo de Verificacao - FinBrain");
             helper.setText(htmlContent, true);
-            
+
             mailSender.send(mimeMessage);
-            
-            System.out.println("Email enviado com sucesso para: " + para);
-            
+            logger.info("Email de verificacao enviado para {}", para);
         } catch (Exception e) {
-            System.err.println("Erro ao enviar email: " + e.getMessage());
-            System.err.println("\n>>> USE O CODIGO PARA CONFIRMAR: " + codigo);
+            logger.warn("Nao foi possivel enviar email para {}. Codigo de verificacao: {}", para, codigo, e);
         }
     }
 }
