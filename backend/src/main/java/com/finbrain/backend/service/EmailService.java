@@ -1,14 +1,13 @@
 package com.finbrain.backend.service;
 
-import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import jakarta.mail.internet.MimeMessage;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +20,15 @@ public class EmailService {
 
     public void enviarCodigo(String para, String codigo) {
         try {
+            Objects.requireNonNull(para, "Destino (para) nao pode ser nulo");
+            Objects.requireNonNull(codigo, "Codigo nao pode ser nulo");
+            System.out.println("\n╔════════════════════════════════════════════════════════╗");
+            System.out.println("║              CODIGO DE VERIFICACAO                      ║");
+            System.out.println("╠════════════════════════════════════════════════════════╣");
+            System.out.printf("║ Email: %-40s ║%n", para);
+            System.out.printf("║ Codigo: %-40s ║%n", codigo);
+            System.out.println("╚════════════════════════════════════════════════════════╝\n");
+            
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
@@ -29,7 +37,11 @@ public class EmailService {
 
             String htmlContent = templateEngine.process("email-verificacao", context);
 
-            helper.setTo(para);
+            // Ensure htmlContent is non-null to satisfy helper API null-safety
+            Objects.requireNonNull(htmlContent, "Rendered email template returned null");
+
+            // Use String[] to match the helper signature and avoid unchecked conversion warnings
+            helper.setTo(new String[]{para});
             helper.setSubject("Codigo de Verificacao - FinBrain");
             helper.setText(htmlContent, true);
 

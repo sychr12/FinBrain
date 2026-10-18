@@ -3,14 +3,15 @@ package com.finbrain.backend.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Data
 public class AuthRequest {
-
-    @Email(message = "Email invalido")
-    @NotBlank(message = "Email e obrigatorio")
+    @NotBlank(message = "Email é obrigatório")
+    @Email(message = "Email inválido")
     private String email;
 
-    @NotBlank(message = "Senha e obrigatoria")
-    private String senha;  // ← mudou de "password" para "senha"
+    @NotBlank(message = "Senha é obrigatória")
+    private String password;
 }

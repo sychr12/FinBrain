@@ -22,12 +22,12 @@ public class CartaoRequest {
     @Positive(message = "Limite deve ser positivo")
     private BigDecimal limiteTotal;
 
-    @NotNull(message = "Dia de fechamento e obrigatorio")
+    @NotNull(message = "Dia de fechamento é obrigatório")
     @Min(value = 1, message = "Dia de fechamento deve estar entre 1 e 31")
     @Max(value = 31, message = "Dia de fechamento deve estar entre 1 e 31")
     private Integer diaFechamento;
 
-    @NotNull(message = "Dia de vencimento e obrigatorio")
+    @NotNull(message = "Dia de vencimento é obrigatório")
     @Min(value = 1, message = "Dia de vencimento deve estar entre 1 e 31")
     @Max(value = 31, message = "Dia de vencimento deve estar entre 1 e 31")
     private Integer diaVencimento;

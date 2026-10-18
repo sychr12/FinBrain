@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,6 +23,7 @@ export default function RegisterPage() {
   const [imageStatus, setImageStatus] = useState<ImageAIStatus>("idle");
   const [imageResult, setImageResult] = useState<ImageAIResult | null>(null);
 
+  // ── password strength ──
   const strength = useMemo(() => {
     const p = form.password;
     if (!p) return 0;
@@ -47,26 +50,7 @@ export default function RegisterPage() {
     return null;
   }
 
-  async function handleImage(file?: File) {
-    setErro("");
-    setImageResult(null);
-
-    if (!file) {
-      setImageStatus("idle");
-      return;
-    }
-
-    setImageStatus("checking");
-    const result = await validateHumanProfileImage(file);
-    setImageResult(result);
-    setImageStatus(result.approved ? "approved" : "blocked");
-
-    if (!result.approved) {
-      setErro(result.reason);
-    }
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErro("");
 
@@ -84,21 +68,9 @@ export default function RegisterPage() {
         password: form.password,
         confirmPassword: form.confirmPassword,
       });
-
-      if (imageResult?.dataUrl) {
-        localStorage.setItem(
-          `pending-profile-photo:${form.email.trim().toLowerCase()}`,
-          JSON.stringify({
-            fotoPerfil: imageResult.dataUrl,
-            fotoValidada: true,
-            reconhecimentoFacial: imageResult.recognitionSummary,
-          })
-        );
-      }
-
-      router.push(`/confirmar?email=${encodeURIComponent(form.email.trim())}`);
-    } catch (err) {
-      setErro(err instanceof Error ? err.message : "Nao foi possivel criar a conta");
+      router.push(`/confirmar?email=${form.email}`);
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : "Não foi possível criar a conta. Tente novamente.");
     } finally {
       setLoading(false);
     }

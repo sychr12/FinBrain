@@ -55,7 +55,12 @@ function isJwtError(message: string): boolean {
 
 async function parseResponse(response: Response) {
   const text = await response.text();
-  let payload: unknown = text;
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      removeToken();
+    }
+    throw new Error(text || `Erro ${response.status}`);
+  }
 
   try {
     payload = text ? JSON.parse(text) : null;

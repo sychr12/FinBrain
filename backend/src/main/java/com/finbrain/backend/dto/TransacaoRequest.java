@@ -19,9 +19,9 @@ public class TransacaoRequest {
     @Positive(message = "Valor deve ser positivo")
     private BigDecimal valor;
 
-    @NotBlank(message = "Tipo e obrigatorio")
+    @NotBlank(message = "Tipo é obrigatório")
     @Pattern(regexp = "(?i)RECEITA|DESPESA", message = "Tipo deve ser RECEITA ou DESPESA")
-    private String tipo;
+    private String tipo; // RECEITA ou DESPESA
 
     private String categoria;
 

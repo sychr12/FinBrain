@@ -23,7 +23,7 @@ import Topbar from "@/components/Topbar";
 import {
   getPerfil,
   getDashboardResumo,
-  type Resumo,
+  logout,
 } from "@/services/api";
 
 interface Perfil {
@@ -66,6 +66,7 @@ export default function DashboardPage() {
         // mandamos para /login, mas sem ficar em loop: o /login agora
         // valida o token antes de redirecionar de volta para o dashboard.
         console.error("Erro ao carregar dados:", error);
+        logout();
         router.push("/login");
       } finally {
         setLoading(false);
@@ -129,15 +130,16 @@ export default function DashboardPage() {
     return `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
   };
 
-  let currentAngle = -90;
-  const donutSegments = GASTOS_DATA.map((item) => {
+  const donutSegments = GASTOS_DATA.reduce<Array<(typeof GASTOS_DATA)[number] & { percent: number; path: string }>>((segments, item) => {
     const percent = (item.valor / totalGastos) * 100;
     const angle = (percent / 100) * 360;
-    const start = currentAngle;
-    const end = currentAngle + angle;
-    currentAngle = end;
-    return { ...item, percent, path: buildDonutPath(start, end) };
-  });
+    const start = segments.length === 0
+      ? -90
+      : -90 + segments.reduce((total, segment) => total + (segment.percent / 100) * 360, 0);
+    const end = start + angle;
+    segments.push({ ...item, percent, path: buildDonutPath(start, end) });
+    return segments;
+  }, []);
 
   return (
     <>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { login, getPerfil } from "@/services/api"; // 🔥 DESCOMENTADO
+import { login, getPerfil } from "@/services/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,31 +12,20 @@ export default function LoginPage() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
-  const [animate, setAnimate] = useState(false);
-  const [checkingSession, setCheckingSession] = useState(true);
-
   useEffect(() => {
-    setAnimate(true);
-
     const token = localStorage.getItem("token");
-    if (!token) {
-      setCheckingSession(false);
-      return;
+    if (!token) return;
+
+    async function validateToken() {
+      try {
+        await getPerfil();
+        router.push("/dashboard");
+      } catch {
+        localStorage.removeItem("token");
+      }
     }
 
-    // Não basta checar se existe um token: precisamos validar se ele
-    // ainda é aceito pelo backend. Caso contrário, /login redireciona
-    // para /dashboard, o dashboard recebe 401 (JWT inválido/expirado),
-    // remove o token e volta para /login — criando um loop infinito.
-    getPerfil()
-      .then(() => {
-        router.push("/dashboard");
-      })
-      .catch(() => {
-        // Token inválido/expirado: já foi removido pelo parseResponse
-        // (AuthError). Apenas deixamos o formulário de login aparecer.
-        setCheckingSession(false);
-      });
+    validateToken();
   }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,12 +40,12 @@ export default function LoginPage() {
     try {
       setLoading(true);
       const data = await login(form);
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if (!data.token) {
+        throw new Error("Não foi possível autenticar. Tente novamente.");
       }
       router.push("/dashboard");
-    } catch (err: any) {
-      setErro(err?.message || "Erro ao fazer login");
+    } catch (err: unknown) {
+      setErro(err instanceof Error ? err.message : "Não foi possível entrar. Tente novamente.");
     } finally {
       setLoading(false);
     }
