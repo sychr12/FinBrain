@@ -2,6 +2,7 @@ package com.finbrain.backend.controller;
 
 import com.finbrain.backend.dto.AuthRequest;
 import com.finbrain.backend.dto.AuthResponse;
+import com.finbrain.backend.dto.RedefinicaoSenha;
 import com.finbrain.backend.dto.RegisterRequest;
 import com.finbrain.backend.service.AuthService;
 import jakarta.validation.Valid;
@@ -50,5 +51,20 @@ public class AuthController {
     ) {
         String resultado = service.confirmar(email, codigo);
         return ResponseEntity.ok(resultado);
+    }
+
+    @PostMapping("/esqueceuSenha")
+    public ResponseEntity<?> esqueceuSenha(
+            @RequestParam("email") String email) {
+        service.esqueceuSenha(email);
+        return ResponseEntity.ok("E-mail de recuperacao enviado com sucesso");
+    }
+
+    @PostMapping("/resetSenha")
+    public ResponseEntity<?> redefinirSenha(
+            @RequestBody RedefinicaoSenha redefinicaoSenha,
+            @RequestParam("token") String token) {
+        service.redefinirSenha(redefinicaoSenha, token);
+        return ResponseEntity.ok("Senha redefinida com sucesso!");
     }
 }

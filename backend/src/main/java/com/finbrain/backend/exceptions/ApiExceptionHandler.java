@@ -1,4 +1,4 @@
-package com.finbrain.backend.config;
+package com.finbrain.backend.exceptions;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

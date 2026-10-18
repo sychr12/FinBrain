@@ -9,6 +9,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 @Service
 @RequiredArgsConstructor
 public class EmailService {
@@ -20,8 +22,8 @@ public class EmailService {
 
     public void enviarCodigo(String para, String codigo) {
         try {
-            Objects.requireNonNull(para, "Destino (para) nao pode ser nulo");
-            Objects.requireNonNull(codigo, "Codigo nao pode ser nulo");
+            requireNonNull(para, "Destino (para) nao pode ser nulo");
+            requireNonNull(codigo, "Codigo nao pode ser nulo");
             System.out.println("\n╔════════════════════════════════════════════════════════╗");
             System.out.println("║              CODIGO DE VERIFICACAO                      ║");
             System.out.println("╠════════════════════════════════════════════════════════╣");
@@ -38,7 +40,7 @@ public class EmailService {
             String htmlContent = templateEngine.process("email-verificacao", context);
 
             // Ensure htmlContent is non-null to satisfy helper API null-safety
-            Objects.requireNonNull(htmlContent, "Rendered email template returned null");
+            requireNonNull(htmlContent, "Rendered email template returned null");
 
             // Use String[] to match the helper signature and avoid unchecked conversion warnings
             helper.setTo(new String[]{para});
